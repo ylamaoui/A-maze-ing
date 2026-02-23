@@ -1,6 +1,7 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple
 from collections import deque
 import random
+from parsing.errors import MazeError
 
 
 class Cell:
@@ -29,8 +30,8 @@ class MazeGenerator:
         self.exit_p = exit_p
         self.output_file = output_file
         self.perfect = perfect
-        self.grid = self._grid_generator()
-        self.path = None
+        self.grid: List[List[Cell]] = []   # edited
+        self.path: List[Tuple[int, int]] = []
         self.seed = seed
 
     def _set_42(self, grid: List[List[Cell]]) -> None:
@@ -74,6 +75,7 @@ class MazeGenerator:
                   "Grid won't contain the 42 pattern")
             return (rows)
         self._set_42(rows)
+
         return (rows)
 
     def _cords_42(self) -> set[tuple]:
@@ -123,7 +125,7 @@ class MazeGenerator:
             count += 1
         if (grid[y][x].west):
             count += 1
-        if count >= 2:
+        if count >= 1:
             return True
         return False
 
@@ -150,7 +152,7 @@ class MazeGenerator:
         have more than one valid path"""
         height = self.height
         width = self.width
-        count = int(0.08 * width * height)
+        count = int(0.15 * width * height)
         unauthorized = self._cords_42()
         for _ in range(count):
             x = random.randint(1, width - 2)
@@ -170,6 +172,8 @@ class MazeGenerator:
         """Executes the randomized Depth-First Search
         algorithm to carve the maze."""
         self.grid = self._grid_generator()
+        self._grid_check()                       # here is the function
+
         if self.seed is not None:
             random.seed(self.seed)
         grid = self.grid
@@ -182,8 +186,10 @@ class MazeGenerator:
             valid = []
             for cell in inside:
                 x, y = cell
-                if (grid[y][x].visited is False
-                    and not grid[y][x].is_pattern):
+                if (
+                    grid[y][x].visited is False
+                    and not grid[y][x].is_pattern
+                ):
                     valid.append(cell)
             if len(valid) > 0:
                 chosen = random.choice(valid)
@@ -198,7 +204,10 @@ class MazeGenerator:
             self._make_it_imperfect(grid)
 
     def generate2(self) -> None:
+        """Executes the randomized Prim's algorithm
+        to carve the maze."""
         self.grid = self._grid_generator()
+        self._grid_check()                          # here mis the function
         if self.seed is not None:
             random.seed(self.seed)
         grid = self.grid
@@ -228,11 +237,6 @@ class MazeGenerator:
             frontier.remove(chosen)
         if not self.perfect:
             self._make_it_imperfect(grid)
-            
-
-
-
-
 
     def _reset(self, grid: List[List[Cell]]) -> None:
         """Sets all cells as not visited for the path finding algo"""
@@ -262,20 +266,18 @@ class MazeGenerator:
                 return True
         return (False)
 
-    def _maze_solver(self) -> List[tuple]:
+    def _maze_solver(self) -> List[Tuple[int, int]]:
         """Perform the Breadth-First Search algo to search for
         the shortest path from the entry point to the exit point"""
         grid = self.grid
         self._reset(grid)
         queue = deque([self.entry])
-        visited = set()
-        parents = {}
+        visited: set[Tuple[int, int]] = set()
+        parents: dict[Tuple[int, int], Tuple[int, int]] = {}
         visited.add(self.entry)
-        # found = False
         while len(queue) > 0:
             cx, cy = queue.popleft()
             if (cx, cy) == self.exit_p:
-                # found = True
                 break
             inside = self._is_inside((cx, cy))
             for coor in inside:
@@ -287,9 +289,8 @@ class MazeGenerator:
                         grid[ny][nx].visited = True
                         queue.append(coor)
                         parents[coor] = (cx, cy)
-        the_way = []
-        # if found:
-        start = self.exit_p
+        the_way: List[Tuple[int, int]] = []
+        start: Optional[Tuple[int, int]] = self.exit_p
         while start is not None:
             the_way.append(start)
             start = parents.get(start)
@@ -337,3 +338,13 @@ class MazeGenerator:
                 tmp.append(format(count, 'X'))
             text.append(tmp)
         return (text)
+
+    def _grid_check(self) -> None:  # added this function to check
+        ex, ey = self.entry         # the 42 pettern
+        ox, oy = self.exit_p
+
+        if self.grid[ey][ex].is_pattern:
+            raise MazeError("Entry is inside '42' pattern")
+
+        if self.grid[oy][ox].is_pattern:
+            raise MazeError("Exit is inside '42' pattern")
