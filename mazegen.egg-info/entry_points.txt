@@ -1,2 +1,0 @@
-[console_scripts]
-A_Maze_ing = maze_generator.a_maze_ing:main

@@ -26,4 +26,4 @@ lint:
 clean:
 	rm -rf venv __pycache__ */__pycache__ .mypy_cache */*.mypy_cache maze.txt mazegen.egg-info dist
 
- .PHONY: install run debug lint clean 
+ .PHONY: install run debug lint clean build

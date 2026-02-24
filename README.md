@@ -24,6 +24,8 @@ To run the project, a Makefile is provided with the following rules:
     and compliance with style guidelines.
 -   make debug
     Launches the program in debug mode using pdb.
+-   make build
+    Compiles the project (if necessary) and prepares it for execution.
 
 ## Configuration File Description
 
@@ -60,7 +62,7 @@ Several algorithms are commonly used in maze generation. In this project, the fo
     + Randomly selects a frontier cell
     + Connects it to an already visited cell
     +Continues until no frontier remains
-Both algorithms generate connected maze structures.
+Both algorithms generate connected maze structures that's why they were used in this project.
 
 - Maze Solving
 `Breadth-First Search (BFS)`
@@ -96,7 +98,9 @@ Visualization is separated from maze logic to maintain modularity and reusabilit
 - Regular communication and code reviews ensured that both logic and visualization were well-integrated and met project requirements.
 
 ### What Worked Well and What Could Be Improved
-- **What Worked Well:**: 
+- **What Worked Well:**: The project was advancing fluently and we haven't encountered any big challenges.
+So we can say that the majority of the project worked well including the maze generation, the algo, 
+the animation and anything in this context.
 - **What Could Be Improved:**: The MLX library didn't provide the expected performance and flexibility.
 
 ### Tools Used:
@@ -113,7 +117,7 @@ This project is structured as a compliant Python package named mazegen-*. It inc
         source venv/bin/activate
         -`Install the standard build tool`
         pip install --upgrade pip
-        pip install build
+        make build
     2. Building the Module
         -From the root of the repository (where pyproject.toml is located), run:
         ---> python3 -m build

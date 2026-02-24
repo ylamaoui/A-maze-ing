@@ -21,3 +21,4 @@ def write_to_file(hex_list: List[List[str]], path: List[str],
         file.write('\n')
         for digit in path:
             file.write(digit)
+        file.write('\n')
